@@ -1,0 +1,49 @@
+from io import BytesIO
+
+from fastapi import FastAPI, UploadFile, File
+from PIL import Image
+from api.core.security import validate_image
+from api.core.database import SessionLocal
+from api.models_api.prediction_history import PredictionHistory
+from api.services.prediction import predict
+from api.schemas.predict_response import PredictionResponse
+
+app = FastAPI(
+    title="Cat Disease API",
+    version="1.0.0"
+)
+
+
+@app.get("/")
+def root():
+
+    return {
+        "message": "Cat Disease API is running"
+    }
+
+
+@app.post("/predict")
+async def predict_image(
+    image: UploadFile = File(...)
+):
+
+    img = await validate_image(image)
+
+    result = predict(img)
+
+    db = SessionLocal()
+
+    try:
+        history = PredictionHistory(
+            image=image.filename,
+            prediction=result["prediction"],
+            confidence=result["confidence"]
+        )
+
+        db.add(history)
+        db.commit()
+
+    finally:
+        db.close()
+
+    return result
