@@ -9,6 +9,7 @@ from api.services.prediction import predict
 from api.schemas.predict_response import PredictionResponse
 from api.core.database import engine
 from api.models_api.prediction_history import Base
+from sqlalchemy import desc
 
 
 Base.metadata.create_all(bind=engine)
@@ -52,3 +53,29 @@ async def predict_image(
         db.close()
 
     return result
+
+@app.get("/history")
+def get_history():
+
+    db = SessionLocal()
+
+    try:
+        history = (
+            db.query(PredictionHistory)
+            .order_by(desc(PredictionHistory.created_at))
+            .all()
+        )
+
+        return [
+            {
+                "id": item.id,
+                "image": item.image,
+                "prediction": item.prediction,
+                "confidence": float(item.confidence),
+                "created_at": item.created_at
+            }
+            for item in history
+        ]
+
+    finally:
+        db.close()
