@@ -7,6 +7,7 @@ from sqlalchemy import DateTime
 from sqlalchemy.sql import func
 from sqlalchemy import BigInteger
 
+
 class Base(DeclarativeBase):
     pass
 
@@ -15,7 +16,7 @@ class PredictionHistory(Base):
 
 
 
-    id = Column(BigInteger, primary_key=True, index=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
     image = Column(String)
     prediction = Column(String)
     confidence = Column(Numeric(5,2))

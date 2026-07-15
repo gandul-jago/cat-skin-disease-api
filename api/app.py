@@ -7,6 +7,11 @@ from api.core.database import SessionLocal
 from api.models_api.prediction_history import PredictionHistory
 from api.services.prediction import predict
 from api.schemas.predict_response import PredictionResponse
+from api.core.database import engine
+from api.models_api.prediction_history import Base
+
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Cat Disease API",
